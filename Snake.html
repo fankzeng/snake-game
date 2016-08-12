@@ -1,0 +1,198 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title></title>	
+	<script http-equiv="content-Type" content="text/html";type="text/script">
+	 var unit=10; 
+	 //方向；1,-1,0，
+     var direction = {"left":1,"top":0};			
+     var food = {"left":-100,"top":-100};//食物的坐标	
+
+	 //蛇的起始坐标
+	 var zuobiaoArr=[
+	        {
+			  "left":30,
+			  "top":0
+			},
+			{
+			  "left":20,
+			  "top":0
+			},
+			{
+			  "left":10,
+			  "top":0
+			},
+			{
+			  "left":0,
+			  "top":0
+			}
+	 ]
+	 
+	 //显示蛇
+	  function showSnake(){
+	    var map=document.getElementById("box");
+	    for(var i=0;i<zuobiaoArr.length;i++)
+		{
+		   var divObj=document.createElement("div");
+		   divObj.className="snakeBody";
+		   divObj.style.left=zuobiaoArr[i].left+"px";
+		   divObj.style.top=zuobiaoArr[i].top+"px";
+		   divObj.style.background="#555";
+		   map.appendChild(divObj);
+		}
+	  }
+	  
+	  //移动
+	  var isMove=false;
+	  function goMove()
+	  {
+	    for(var i=zuobiaoArr.length-1;i>0;i--)
+		{
+		  zuobiaoArr[i].left=zuobiaoArr[i-1].left;
+		  zuobiaoArr[i].top=zuobiaoArr[i-1].top;
+		}
+		//方向
+		zuobiaoArr[0].left=zuobiaoArr[0].left+unit*direction.left;
+		zuobiaoArr[0].top=zuobiaoArr[0].top+unit*direction.top;
+		
+		if(zuobiaoArr[0].left<0||zuobiaoArr[0].left>690||zuobiaoArr[0].top<0||zuobiaoArr[0].top>440)
+		{
+		  stopGame();
+		  alert("你输了！");
+		  location.reload();
+		}
+		
+		for(var i=4;i<zuobiaoArr.length;i++)
+		{
+		  if(zuobiaoArr[0].left==zuobiaoArr[i].left && zuobiaoArr[0].top == zuobiaoArr[i].top){
+		  	stopGame();
+		    alert("你输了！");
+			location.reload();
+		  }
+	    }
+		
+		//蛇的身体位置显示
+		var snakeBody=document.getElementsByClassName("snakeBody")
+		for(var i=0;i<zuobiaoArr.length;i++)
+		{
+		   snakeBody[i].style.left=zuobiaoArr[i].left+"px";
+		   snakeBody[i].style.top=zuobiaoArr[i].top+"px";
+		}
+		isMove=true;
+		var foodObj=document.getElementById("foodId");
+		if(foodObj.style.left==snakeBody[0].style.left&&foodObj.style.top==snakeBody[0].style.top)
+		{
+		  showFood();
+		  var map=document.getElementById("box");
+		  zuobiaoArr.push({"left":-1000,"top":-1000});
+		  var divObj=document.createElement("div");
+		  divObj.className="snakeBody";
+		  divObj.style.left=zuobiaoArr[zuobiaoArr.length-1].left+"px";
+		  divObj.style.top=zuobiaoArr[zuobiaoArr.length-1].top+"px";
+		  divObj.style.background="#555";
+		  map.appendChild(divObj); 
+		}
+		
+	  }
+	  
+	  //方向控制
+	  function directControl(evt)
+	  {
+	    if(isMove==true)
+		{
+			switch(evt.keyCode)
+			{
+			  case 37:if(direction.left!=1)  //如果此时方向不向右，按下向左键，方向向左
+					  {
+						direction.left=-1;
+						direction.top=0;
+                        isMove=false;						
+					  }
+					  break;
+			  case 38:if(direction.top!=1)  //如果此时方向不向下，按下向上键，方向向上
+					  {
+						direction.left=0;
+						direction.top=-1;
+						isMove=false;
+					  }
+					  break;
+			  case 39:if(direction.left!=-1)  //如果此时方向不向左，按下向右键，方向向右
+					  {
+						direction.left=1;
+						direction.top=0;	
+						isMove=false;
+					  }
+					  break;
+			  case 40:if(direction.top!=-1)  //如果此时方向不向上，按下向下键，方向向下
+					  {
+						direction.left=0;
+						direction.top=1;
+  						isMove=false;
+					  }
+					  break;
+			}
+		}
+	    
+	  }
+	  
+	  //生成食物
+	  function showFood()
+	  {
+	    var foodObj=document.getElementById("foodId");
+		foodObj.style.left=parseInt(Math.random()*(700/unit))*unit+"px";
+		foodObj.style.top=parseInt(Math.random()*(450/unit))*unit+"px";
+	  }
+	  
+	  var startTime;
+	  function stopGame()
+	  {
+	    clearInterval(startTime); 
+	  }
+	  
+	  function startGame()
+	  {
+	    startTime=setInterval("goMove()",200);
+	  }
+	  
+	  function init()
+	  {
+	    showSnake();
+		showFood();
+	  }
+	</script>
+	<style type="text/css">
+	  body{background:#a6a6a6;}
+	  #box{
+	      margin:30px auto;
+	      position:relative;
+	      background:#eee;
+		  width:700px;
+		  height:450px;
+	  }
+	  .snakeBody{
+	      width:10px;
+		  height:10px;
+		  position:absolute;
+		  border:1px solid #999;
+	  }
+	  
+	  #foodId{
+	      width:10px;
+		  height:10px;
+		  position:absolute;
+		  background:blue;
+	  }
+ 
+	</style>
+  </head>
+  
+  <body onload="init()" onkeydown="directControl(event)"> 
+    <input type="button" onclick="startGame()" value="开始" style="margin-left:200px;"/>
+    <input type="button" onclick="stopGame()" value="暂停" style="margin-left:15px;"/>
+    <div id="box">
+	  <div id="foodId"></div>
+	</div>
+	
+  </body>
+</html>
